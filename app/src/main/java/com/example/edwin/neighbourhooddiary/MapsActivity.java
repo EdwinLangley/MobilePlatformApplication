@@ -1,7 +1,9 @@
 package com.example.edwin.neighbourhooddiary;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,16 +12,23 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
+    private static final int EDIT_REQUEST = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -43,6 +53,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
 
 
+        mMap.addMarker(new MarkerOptions().position(new LatLng(52.9748, -1.1581)).title("Notts2"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(52.9748, -1.1571)).title("Notts2"));
+
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(52.9548, -1.1581))
+                .title("Nottingham Postbox")
+                .snippet("Collection Time: 14:30")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.post)));
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(final LatLng latLng) {
+                Intent edit = new Intent(MapsActivity.this, MarkerEdit.class);
+                edit.putExtra("location", latLng);
+                MapsActivity.this.startActivityForResult(edit, EDIT_REQUEST);
+            }
+        });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (EDIT_REQUEST) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    MarkerOptions markerOptions = data.getParcelableExtra("marker");
+                    mMap.addMarker(markerOptions);
+                }
+                break;
+            }
+        }
     }
 
     @Override
@@ -65,5 +107,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 }
+
+
+
+
+
+
+
 
 

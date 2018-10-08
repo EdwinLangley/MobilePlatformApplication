@@ -40,7 +40,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MapsActivity" />
-        <activity android:name=".WelcomeScreen"></activity>
+        <activity android:name=".WelcomeScreen" />
+        <activity android:name=".MarkerEdit"></activity>
     </application>
 
 </manifest>
