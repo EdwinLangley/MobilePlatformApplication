@@ -40,7 +40,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".MapsActivity" />
-        <activity android:name=".WelcomeScreen" />
+        <activity
+            android:name=".WelcomeScreen"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".MarkerEdit"></activity>
     </application>
 
