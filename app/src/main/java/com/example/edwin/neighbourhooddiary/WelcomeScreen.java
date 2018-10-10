@@ -54,6 +54,25 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         startActivity(mapIntent);
     }
 
+    public void displayAboutAppDialog(View view){
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_about_app, null);
+
+        Button dismissButton = (Button) mView.findViewById(R.id.dismissButton);
+
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+        dialog.show();
+
+        dismissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+    }
+
 
 
 
@@ -69,7 +88,6 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
                 break;
 
             case R.id.account_details_button:
-                Toast.makeText(this, "TODO", Toast.LENGTH_SHORT).show();
                 displayAccountInformationDialog();
                 break;
         }
@@ -83,6 +101,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         TextView givenName  = (TextView) mView.findViewById(R.id.givenName);
         TextView familyName = (TextView) mView.findViewById(R.id.familyName);
         TextView email = (TextView) mView.findViewById(R.id.email);
+        Button dismissButton = (Button) mView.findViewById(R.id.dismissButton);
 
         displayName.setText(acct.getDisplayName());
         givenName.setText(acct.getGivenName());
@@ -90,9 +109,15 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         email.setText(acct.getEmail());
 
         mBuilder.setView(mView);
-        AlertDialog dialog = mBuilder.create();
+        final AlertDialog dialog = mBuilder.create();
         dialog.show();
 
+        dismissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
 
     }
 

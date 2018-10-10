@@ -12,4 +12,5 @@
     <string name="groups">Groups</string>
     <string name="contacts">Contacts</string>
     <string name="about">About</string>
+    <string name="about_textview">This application was designed to help individuals in small communities, discover local events and landmarks. Individuals can use a variety of Tech to aid this discovery. </string>
 </resources>
