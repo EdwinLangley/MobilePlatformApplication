@@ -6,6 +6,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +21,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
+import java.util.ArrayList;
+
 public class WelcomeScreen extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener  {
 
     Button signedInAsButton;
@@ -28,11 +31,14 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
     Button signoutbutton;
     private static final int RC_SIGN_IN = 9001;
     GoogleSignInAccount acct;
+    FBDatabaseHelper fbDatabaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome_screen);
+
+        fbDatabaseHelper = new FBDatabaseHelper();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
 
@@ -51,6 +57,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
     public void openMapPage(View view){
         Intent mapIntent = new Intent(this, MapsActivity.class);
+        mapIntent.putExtra("acct",acct);
         startActivity(mapIntent);
     }
 
@@ -72,8 +79,6 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         });
 
     }
-
-
 
 
     @Override
@@ -154,6 +159,11 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             signInButton.setVisibility(View.GONE);
             signedInAsButton.setVisibility(View.VISIBLE);
             signedInAsButton.setText("Signed In As " + acct.getDisplayName());
+            fbDatabaseHelper.writeNewUser(acct.getDisplayName(),acct.getGivenName(),acct.getEmail());
+            ArrayList<String> arraystring = new ArrayList<>();
+            arraystring.add("lol");
+            arraystring.add("lol1");
+
         }
     }
 

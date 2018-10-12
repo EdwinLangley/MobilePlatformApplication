@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -28,6 +29,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LocationManager locationManager;
     private static final int EDIT_REQUEST = 1;
+    private FBDatabaseHelper fbDatabaseHelper = new FBDatabaseHelper();
+     GoogleSignInAccount acct;
 
 
     @Override
@@ -38,6 +41,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        acct = getIntent().getParcelableExtra("acct");
 
     }
 
@@ -52,9 +57,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.setMyLocationEnabled(true);
 
-
-        mMap.addMarker(new MarkerOptions().position(new LatLng(52.9748, -1.1581)).title("Notts2"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(52.9748, -1.1571)).title("Notts2"));
 
         mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(52.9548, -1.1581))
@@ -80,7 +82,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             case (EDIT_REQUEST) : {
                 if (resultCode == Activity.RESULT_OK) {
                     MarkerOptions markerOptions = data.getParcelableExtra("marker");
+                    String description = data.getStringExtra("description");
+                    boolean isExpirable = data.getBooleanExtra("expirable",false);
+                    long startTime = data.getLongExtra("startTime",0L);
+                    long endTime = data.getLongExtra("endTime",0L);
+                    String eventType = data.getStringExtra("eventType");
                     mMap.addMarker(markerOptions);
+                    Double lat = markerOptions.getPosition().latitude;
+                    Double lng = markerOptions.getPosition().longitude;
+
+                    fbDatabaseHelper.writeNewMarker(lat,lng,isExpirable,markerOptions.getTitle(),eventType,startTime,endTime,description,acct.getDisplayName());
                 }
                 break;
             }
