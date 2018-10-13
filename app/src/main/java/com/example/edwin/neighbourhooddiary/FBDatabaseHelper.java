@@ -1,13 +1,7 @@
 package com.example.edwin.neighbourhooddiary;
 
-import android.widget.Toast;
-
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class FBDatabaseHelper {
 
@@ -26,8 +20,8 @@ public class FBDatabaseHelper {
     }
 
     public void writeNewMarker(double lat, double lng, boolean isExpirable, String eventName, String eventType, long startTime, long endTime, String descrip, String addedBy){
-        Marker marker = new Marker( lat,  lng,  isExpirable,  eventName,  eventType,  startTime,  endTime,  descrip,   addedBy);
-        mDatabase.child("markers").child(eventName + addedBy).setValue(marker);
+        CustomMarker customMarker = new CustomMarker( lat,  lng,  isExpirable,  eventName,  eventType,  startTime,  endTime,  descrip,   addedBy);
+        mDatabase.child("markers").child(eventName + addedBy).setValue(customMarker);
     }
 }
 

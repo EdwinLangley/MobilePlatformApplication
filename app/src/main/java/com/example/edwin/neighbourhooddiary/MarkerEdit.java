@@ -71,7 +71,27 @@ public class MarkerEdit extends AppCompatActivity {
                 if (title.getText() != null) {
                     marker.title(title.getText().toString());
                 }
-                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.post));
+
+                String eventType = "";
+                eventType = spinner.getSelectedItem().toString();
+
+                switch (eventType) {
+                    case "PostBox":   marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.post));
+                        break;
+                    case "ATM":  marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.atm));
+                        break;
+                    case "Public WC":  marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.wc));
+                        break;
+                    case "Parking":   marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.parking));
+                        break;
+                    case "Car Charging":  marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.carcharge));
+                        break;
+                    case "General Attractions":  marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.attraction));
+                        break;
+                    case "Picnic Areas":  marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.picnic));
+                        break;
+
+                }
 
                 descriptionTextView = (EditText) findViewById(R.id.descriptionEditText);
                 description = descriptionTextView.getText().toString();
@@ -84,8 +104,7 @@ public class MarkerEdit extends AppCompatActivity {
                     isExpirable = false;
                 }
 
-                String eventType = "";
-                eventType = spinner.getSelectedItem().toString();
+
 
                 Intent resultIntent = new Intent();
 
@@ -108,7 +127,7 @@ public class MarkerEdit extends AppCompatActivity {
 
 
                 switch (selection) {
-                    case "Post":   markerIcon.setImageResource(R.drawable.post);
+                    case "PostBox":   markerIcon.setImageResource(R.drawable.post);
                         break;
                     case "ATM":  markerIcon.setImageResource(R.drawable.atm);
                         break;

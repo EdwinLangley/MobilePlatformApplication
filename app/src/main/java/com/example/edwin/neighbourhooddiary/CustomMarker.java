@@ -2,7 +2,7 @@ package com.example.edwin.neighbourhooddiary;
 
 import java.util.ArrayList;
 
-public class Marker {
+public class CustomMarker {
 
     public double lat;
     public double lng;
@@ -15,7 +15,7 @@ public class Marker {
     public ArrayList<String> groupsWelcome;
     public String addedBy;
 
-    public Marker(double lat, double lng, boolean isExpirable, String eventName, String eventType, long startTime, long endTime, String descrip, String addedBy) {
+    public CustomMarker(double lat, double lng, boolean isExpirable, String eventName, String eventType, long startTime, long endTime, String descrip, String addedBy) {
         this.lat = lat;
         this.lng = lng;
         this.isExpirable = isExpirable;
@@ -114,6 +114,6 @@ public class Marker {
 
 
 
-    public Marker() {
+    public CustomMarker() {
     }
 }
