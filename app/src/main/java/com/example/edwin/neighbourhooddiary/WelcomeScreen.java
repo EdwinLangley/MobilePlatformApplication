@@ -6,8 +6,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,8 +22,17 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class WelcomeScreen extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener  {
 
@@ -32,6 +43,8 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
     private static final int RC_SIGN_IN = 9001;
     GoogleSignInAccount acct;
     FBDatabaseHelper fbDatabaseHelper;
+    DatabaseReference mUserReference;
+    ArrayList<User> allUsers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +66,39 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
         signedInAsButton = (Button) findViewById(R.id.account_details_button);
         signedInAsButton.setOnClickListener(this);
+
+        mUserReference = FirebaseDatabase.getInstance().getReference().child("users");
+
+
+        ValueEventListener markerListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                loadInUsers(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+                // ...
+            }
+        };
+        mUserReference.addValueEventListener(markerListener);
+
+    }
+
+    private void loadInUsers(DataSnapshot dataSnapshot) {
+        allUsers.clear();
+        for(DataSnapshot ds : dataSnapshot.getChildren() ){
+            User user = new User();
+            user.setDisplayName(ds.getValue(User.class).getDisplayName());
+            user.setTime(ds.getValue(User.class).getTime());
+            user.setEmail(ds.getValue(User.class).getEmail());
+
+            allUsers.add(user);
+
+        }
     }
 
     public void openMapPage(View view){
@@ -78,6 +124,73 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             }
         });
 
+    }
+
+    public void openAllUsers(View view){
+
+
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_all_users, null);
+
+        final ListView allUsersListView = (ListView) mView.findViewById(R.id.usersListView);
+
+        List<String> displayNames = new ArrayList<String>();
+
+        for(User u : allUsers){
+            displayNames.add(u.getDisplayName());
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                displayNames );
+
+        allUsersListView.setAdapter(arrayAdapter);
+
+        allUsersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String currentName = allUsersListView.getItemAtPosition(position).toString();
+                User userToView;
+                userToView = getSingleUser(currentName);
+                openSingleUser(userToView);
+            }
+        });
+
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+        dialog.show();
+    }
+
+    public User getSingleUser(String displayName){
+        for(User u : allUsers){
+            if(u.getDisplayName() == displayName){
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public void openSingleUser(User user){
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View innerView = getLayoutInflater().inflate(R.layout.dialog_user_information, null);
+
+        TextView displayNameText = (TextView) innerView.findViewById(R.id.nameTextView);
+        TextView emailText = (TextView) innerView.findViewById(R.id.emailTextView);
+        TextView lastLoggedInText = (TextView) innerView.findViewById(R.id.lastLoggedInTV);
+
+        Date loggedInTime = new Date(user.getTime());
+
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
+        displayNameText.setText("Name: " + user.getDisplayName());
+        emailText.setText("Email: " + user.getEmail());
+        lastLoggedInText.setText("Last Logged In : " + df.format(loggedInTime));
+
+
+        mBuilder.setView(innerView);
+        final AlertDialog innerDialog = mBuilder.create();
+        innerDialog.show();
     }
 
 

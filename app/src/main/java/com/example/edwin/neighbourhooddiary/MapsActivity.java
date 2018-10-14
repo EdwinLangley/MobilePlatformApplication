@@ -15,6 +15,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -49,6 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private int markerHeight = 100;
     private int markerWidth = 100;
+    private String[] imageUrls;
 
 // =====================================================================
 // NAME:
@@ -165,6 +171,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    public void displayEventContentDialog(){
+
+        imageUrls = new String[]{
+                "https://cdn.pixabay.com/photo/2016/11/11/23/34/cat-1817970_960_720.jpg",
+                "https://cdn.pixabay.com/photo/2017/12/21/12/26/glowworm-3031704_960_720.jpg",
+                "https://cdn.pixabay.com/photo/2017/12/24/09/09/road-3036620_960_720.jpg",
+                "https://cdn.pixabay.com/photo/2017/11/07/00/07/fantasy-2925250_960_720.jpg",
+                "https://cdn.pixabay.com/photo/2017/10/10/15/28/butterfly-2837589_960_720.jpg"
+        };
+
+
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_event_content_screen, null);
+
+        //Button dismissButton = (Button) mView.findViewById(R.id.dismissButton);
+
+        ViewPager viewPager = mView.findViewById(R.id.view_pager);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this, imageUrls);
+        viewPager.setAdapter(adapter);
+
+
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+        dialog.show();
+
+
+    }
+
+
 // =====================================================================
 // NAME:
 // PURPOSE:
@@ -179,6 +214,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         this.mMap.setMyLocationEnabled(true);
+
+        //mMap.setInfoWindowAdapter(new InfoWindowCustom(this));
+
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                displayEventContentDialog();
+            }
+        });
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
