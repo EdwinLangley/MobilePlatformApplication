@@ -273,10 +273,8 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             signedInAsButton.setVisibility(View.VISIBLE);
             signedInAsButton.setText("Signed In As " + acct.getDisplayName());
             fbDatabaseHelper.writeNewUser(acct.getDisplayName(),acct.getGivenName(),acct.getEmail());
-            ArrayList<String> arraystring = new ArrayList<>();
-            arraystring.add("lol");
-            arraystring.add("lol1");
-
+        } else {
+            Toast.makeText(this, "This didn't work", Toast.LENGTH_SHORT).show();
         }
     }
 
