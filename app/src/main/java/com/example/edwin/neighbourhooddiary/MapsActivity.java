@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -26,6 +27,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -43,10 +47,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, NfcAdapter.OnNdefPushCompleteCallback, NfcAdapter.CreateNdefMessageCallback {
@@ -194,7 +201,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    public void displayEventContentDialog(){
+    public void displayEventContentDialog(String eventIdentifier){
+
 
         imageUrls = new String[]{
                 "https://cdn.pixabay.com/photo/2016/11/11/23/34/cat-1817970_960_720.jpg",
@@ -214,10 +222,118 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ViewPagerAdapter adapter = new ViewPagerAdapter(this, imageUrls);
         viewPager.setAdapter(adapter);
 
+        final TextView titletext = mView.findViewById(R.id.titleTextView);
+        final TextView description = mView.findViewById(R.id.descriptionTextView);
+        TextView addedby = mView.findViewById(R.id.addedByTextView);
+
+        final ImageView star1 = mView.findViewById(R.id.star1);
+        final ImageView star2 = mView.findViewById(R.id.star2);
+        final ImageView star3 = mView.findViewById(R.id.star3);
+        final ImageView star4 = mView.findViewById(R.id.star4);
+        final ImageView star5 = mView.findViewById(R.id.star5);
+
+        final Drawable doff = getResources().getDrawable(android.R.drawable.star_big_off);
+        final Drawable don = getResources().getDrawable(android.R.drawable.star_big_on);
+
+        TextView startedAt = mView.findViewById(R.id.startedTextView);
+        TextView finishedAt = mView.findViewById(R.id.endedTextView);
+
+        star1.setImageDrawable(don);
+        star2.setImageDrawable(don);
+        star3.setImageDrawable(don);
+        star4.setImageDrawable(don);
+        star5.setImageDrawable(don);
+
+
+
+        CustomMarker targetMarker = new CustomMarker();
+
+        for(CustomMarker a : activeCustomMarkers  ){
+            if(a.getEventName().equals(eventIdentifier)){
+                targetMarker = a;
+            }
+        }
+
+        if(targetMarker.isExpirable()){
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            sdf.format(new Date(targetMarker.getStartTime()));
+            sdf.format(new Date(targetMarker.getEndTime()));
+
+            startedAt.setText("Started: " + sdf.format(new Date(targetMarker.getStartTime())));
+            finishedAt.setText("Ends: " + sdf.format(new Date(targetMarker.getEndTime())));
+        } else {
+            startedAt.setVisibility(View.INVISIBLE);
+            finishedAt.setVisibility(View.INVISIBLE);
+        }
+
+        titletext.setText(targetMarker.getEventName());
+        description.setText(targetMarker.getDescrip());
+        addedby.setText("added by " + targetMarker.getAddedBy());
 
         mBuilder.setView(mView);
         final AlertDialog dialog = mBuilder.create();
         dialog.show();
+
+        star1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                star1.setImageDrawable(don);
+                star2.setImageDrawable(doff);
+                star3.setImageDrawable(doff);
+                star4.setImageDrawable(doff);
+                star5.setImageDrawable(doff);
+            }
+        });
+
+        star2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                star1.setImageDrawable(don);
+                star2.setImageDrawable(don);
+                star3.setImageDrawable(doff);
+                star4.setImageDrawable(doff);
+                star5.setImageDrawable(doff);
+            }
+        });
+
+        star3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                star1.setImageDrawable(don);
+                star2.setImageDrawable(don);
+                star3.setImageDrawable(don);
+                star4.setImageDrawable(doff);
+                star5.setImageDrawable(doff);
+            }
+        });
+
+        star4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                star1.setImageDrawable(don);
+                star2.setImageDrawable(don);
+                star3.setImageDrawable(don);
+                star4.setImageDrawable(don);
+                star5.setImageDrawable(doff);
+            }
+        });
+
+        star5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                star1.setImageDrawable(don);
+                star2.setImageDrawable(don);
+                star3.setImageDrawable(don);
+                star4.setImageDrawable(don);
+                star5.setImageDrawable(don);
+            }
+        });
 
 
     }
@@ -243,7 +359,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                displayEventContentDialog();
+                displayEventContentDialog(marker.getTitle());
             }
         });
 
@@ -351,7 +467,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 for (NdefRecord r:attachedRecords) {
                     String feedback = new String(r.getPayload());
-                    Toast.makeText(this, feedback , Toast.LENGTH_LONG).show();
+                    if(feedback.equals("test")){
+                        displayEventContentDialog("test");
+                    }
                     if (feedback.equals(getPackageName())) {
                         continue;
                     }
@@ -366,16 +484,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        //This will be called when another NFC capable device is detected.
-
-        //We'll write the createRecords() method in just a moment
         NdefRecord recordToAttach = createRecords();
-        //When creating an NdefMessage we need to provide an NdefRecord[]
         return new NdefMessage(recordToAttach);
     }
 
     public NdefRecord createRecords() {
-        //To Create Messages Manually if API is less than
         NdefRecord record;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
@@ -384,13 +497,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     getBytes(Charset.forName("UTF-8"));
 
             record = new NdefRecord(
-                    NdefRecord.TNF_WELL_KNOWN,      //Our 3-bit Type name format
-                    NdefRecord.RTD_TEXT,            //Description of our payload
-                    new byte[0],                    //The optional id for our Record
-                    payload);                       //Our payload for the Record
+                    NdefRecord.TNF_WELL_KNOWN,
+                    NdefRecord.RTD_TEXT,
+                    new byte[0],
+                    payload);
 
         }
-        //Api is high enough that we can use createMime, which is preferred.
+
         else {
             byte[] payload = "test".getBytes(Charset.forName("UTF-8"));
 
@@ -410,13 +523,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         recieveNFCIntent(intent);
     }
 
-    //Save our Array Lists of Messages for if the user navigates away
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    //Load our Array Lists of Messages for when the user navigates back
     @Override
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
