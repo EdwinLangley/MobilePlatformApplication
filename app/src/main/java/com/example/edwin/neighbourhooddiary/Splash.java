@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
@@ -50,5 +51,10 @@ public class Splash extends AppCompatActivity {
                 Splash.this.finish();
             }
         }, SPLASH_DISPLAY_LENGTH);
+    }
+
+    public void openMapPage(View view){
+        Intent testIntent = new Intent(this, NFCTester.class);
+        startActivity(testIntent);
     }
 }
