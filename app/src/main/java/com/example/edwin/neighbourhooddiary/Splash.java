@@ -18,6 +18,7 @@ public class Splash extends AppCompatActivity {
 
     private final int SPLASH_DISPLAY_LENGTH = 2000;
     private ImageView img;
+    boolean testTrigger = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,15 +47,21 @@ public class Splash extends AppCompatActivity {
             @Override
             public void run() {
                 /* Create an Intent that will start the Menu-Activity. */
-                Intent mainIntent = new Intent(Splash.this, WelcomeScreen.class);
-                Splash.this.startActivity(mainIntent);
-                Splash.this.finish();
+                if(testTrigger == false){
+                    Intent mainIntent = new Intent(Splash.this, WelcomeScreen.class);
+                    Splash.this.startActivity(mainIntent);
+                    Splash.this.finish();
+                } else{
+                    Intent testIntent = new Intent(Splash.this, NFCTester.class);
+                    startActivity(testIntent);
+                    Splash.this.finish();
+                }
+
             }
         }, SPLASH_DISPLAY_LENGTH);
     }
 
     public void openMapPage(View view){
-        Intent testIntent = new Intent(this, NFCTester.class);
-        startActivity(testIntent);
+        testTrigger = true;
     }
 }
