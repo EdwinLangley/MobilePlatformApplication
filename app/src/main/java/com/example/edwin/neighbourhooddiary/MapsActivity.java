@@ -2,6 +2,7 @@ package com.example.edwin.neighbourhooddiary;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -43,12 +45,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -61,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private LocationManager locationManager;
     private static final int EDIT_REQUEST = 1;
+    public static final int PICK_IMAGE = 65;
     private FBDatabaseHelper fbDatabaseHelper = new FBDatabaseHelper();
     GoogleSignInAccount acct;
     DatabaseReference mMarkerReference;
@@ -68,6 +75,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<Marker> drawnMarkers = new ArrayList<>();
 
     private NfcAdapter mNfcAdapter;
+
+    private StorageReference mStorage;
+    ProgressDialog progressDialog;
 
     private int markerHeight = 100;
     private int markerWidth = 100;
@@ -92,6 +102,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMarkerReference = FirebaseDatabase.getInstance().getReference().child("markers");
 
+        mStorage = FirebaseStorage.getInstance().getReference();
+
+        progressDialog = new ProgressDialog(this);
 
         ValueEventListener markerListener = new ValueEventListener() {
             @Override
@@ -205,8 +218,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         imageUrls = new String[]{
-                "https://cdn.pixabay.com/photo/2016/11/11/23/34/cat-1817970_960_720.jpg",
-                "https://cdn.pixabay.com/photo/2017/12/21/12/26/glowworm-3031704_960_720.jpg",
+                "https://s3.voyapon.com/wp-content/uploads/2017/04/IMG_20170424_135925.jpg",
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/ATM_750x1300.jpg/220px-ATM_750x1300.jpg",
                 "https://cdn.pixabay.com/photo/2017/12/24/09/09/road-3036620_960_720.jpg",
                 "https://cdn.pixabay.com/photo/2017/11/07/00/07/fantasy-2925250_960_720.jpg",
                 "https://cdn.pixabay.com/photo/2017/10/10/15/28/butterfly-2837589_960_720.jpg"
@@ -234,6 +247,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         final Drawable doff = getResources().getDrawable(android.R.drawable.star_big_off);
         final Drawable don = getResources().getDrawable(android.R.drawable.star_big_on);
+
+        final Button addPhotosButton = mView.findViewById(R.id.addPhotosButton);
 
         TextView startedAt = mView.findViewById(R.id.startedTextView);
         TextView finishedAt = mView.findViewById(R.id.endedTextView);
@@ -275,6 +290,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mBuilder.setView(mView);
         final AlertDialog dialog = mBuilder.create();
         dialog.show();
+
+        addPhotosButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+            }
+        });
 
         star1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -424,7 +449,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Double lng = markerOptions.getPosition().longitude;
 
                     fbDatabaseHelper.writeNewMarker(lat,lng,isExpirable,markerOptions.getTitle(),eventType,startTime,endTime,description,acct.getDisplayName());
-                }
+                }}
+                case (PICK_IMAGE) : {
+                    if (resultCode == Activity.RESULT_OK) {
+
+                        progressDialog.setMessage("Uploading photo");
+                        progressDialog.show();
+
+                        Uri uri = data.getData();
+                        StorageReference cref = mStorage.child("photos").child(uri.getLastPathSegment());
+
+                        cref.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Toast.makeText(MapsActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                                progressDialog.dismiss();
+                            }
+                        });
+
+                    }
                 break;
             }
         }
