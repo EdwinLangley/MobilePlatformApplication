@@ -141,7 +141,6 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
     }
 
     public void setNFC(View view) {
-
     }
 
     @Override

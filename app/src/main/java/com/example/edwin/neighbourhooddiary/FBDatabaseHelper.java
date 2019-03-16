@@ -38,47 +38,6 @@ public class FBDatabaseHelper {
         mDatabase.child("markers").child(eventName + addedBy).setValue(customMarker);
     }
 
-//    public void getMarkerInfo(String eventName){
-//
-//        Query query = FirebaseDatabase.getInstance().getReference("markers").orderByChild("eventName").equalTo(eventName);
-//
-//        query.addListenerForSingleValueEvent();
-//
-//        ValueEventListener valueEventListener = new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        }
-//
-//    }
-
-//    public CustomMarker getMarkerInfoNew(final String eventName){
-//        mDatabase.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot messageSnapshot: dataSnapshot.getChildren()) {
-//                    if(messageSnapshot.getKey().equals(CustomMarker (eventName))){
-//                        retrievedUser = messageSnapshot.getValue(User.class);
-//                        doSomethingWithTheUser(retrievedUser);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {}
-//        });
-//    }
 
 
     public void setTargetMarker(CustomMarker customMarker){
