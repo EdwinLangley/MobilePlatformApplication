@@ -467,8 +467,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 for (NdefRecord r:attachedRecords) {
                     String feedback = new String(r.getPayload());
-                    if(feedback.equals("test")){
-                        displayEventContentDialog("test");
+                    if(feedback.equals("ATM")){
+                        displayEventContentDialog("ATM");
+                    }
+                    if(feedback.equals("Car Charge")){
+                        displayEventContentDialog("Car Charge");
                     }
                     if (feedback.equals(getPackageName())) {
                         continue;

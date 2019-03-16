@@ -348,7 +348,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
 
-            byte[] payload = "test".
+            byte[] payload = "ATM".
                     getBytes(Charset.forName("UTF-8"));
 
             record = new NdefRecord(
@@ -360,7 +360,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         }
         //Api is high enough that we can use createMime, which is preferred.
         else {
-            byte[] payload = "test".getBytes(Charset.forName("UTF-8"));
+            byte[] payload = "ATM".getBytes(Charset.forName("UTF-8"));
 
             record = NdefRecord.createMime("text/plain",payload);
         }
