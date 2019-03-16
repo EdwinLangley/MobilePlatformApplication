@@ -61,7 +61,9 @@ import com.google.firebase.storage.UploadTask;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, NfcAdapter.OnNdefPushCompleteCallback, NfcAdapter.CreateNdefMessageCallback {
@@ -210,6 +212,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             customMarker.setLat(ds.getValue(CustomMarker.class).getLat());
             customMarker.setLng(ds.getValue(CustomMarker.class).getLng());
             customMarker.setStartTime(ds.getValue(CustomMarker.class).getStartTime());
+            customMarker.setImageString(ds.getValue(CustomMarker.class).getImageString());
 
             activeCustomMarkers.add(customMarker);
 
@@ -219,14 +222,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void displayEventContentDialog(String eventIdentifier){
 
+        CustomMarker targetMarker = new CustomMarker();
 
-        imageUrls = new String[]{
-                "https://firebasestorage.googleapis.com/v0/b/neighbourhood-diary.appspot.com/o/photos%2FPostbox%2Fimage%3A223?alt=media&token=a356e969-61aa-4d76-82ce-2c75c9b3c6f7",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/ATM_750x1300.jpg/220px-ATM_750x1300.jpg",
-                "https://cdn.pixabay.com/photo/2017/12/24/09/09/road-3036620_960_720.jpg",
-                "https://cdn.pixabay.com/photo/2017/11/07/00/07/fantasy-2925250_960_720.jpg",
-                "https://cdn.pixabay.com/photo/2017/10/10/15/28/butterfly-2837589_960_720.jpg"
-        };
+        for(CustomMarker a : activeCustomMarkers  ){
+            if(a.getEventName().equals(eventIdentifier)){
+                targetMarker = a;
+            }
+        }
+
+        currentOpenedEvent = targetMarker;
+
+        String imageCollection = targetMarker.getImageString();
+
+        List<String> items = new ArrayList<>();
+
+        if(imageCollection != null){
+            items = Arrays.asList(imageCollection.split("\\s*§\\s*"));
+        }
+
+
+        if(items.size() >= 1){
+            String[] imageArray = items.toArray(new String[0]);
+            imageUrls = imageArray;
+        } else {
+            imageUrls = new String[0];
+        }
+
+
 
 
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
@@ -261,18 +283,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         star3.setImageDrawable(don);
         star4.setImageDrawable(don);
         star5.setImageDrawable(don);
-
-
-
-        CustomMarker targetMarker = new CustomMarker();
-
-        for(CustomMarker a : activeCustomMarkers  ){
-            if(a.getEventName().equals(eventIdentifier)){
-                targetMarker = a;
-            }
-        }
-
-        currentOpenedEvent = targetMarker;
 
         if(targetMarker.isExpirable()){
 
@@ -474,7 +484,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     public void onSuccess(Uri uri) {
                                         Uri downloadurl = uri;
 
-                                        mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("imageString").setValue(uri.toString());
+                                        if(currentOpenedEvent.getImageString() != null){
+                                            String toWrite = currentOpenedEvent.getImageString() + "§" + uri.toString();
+                                            mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("imageString").setValue(toWrite);
+                                        } else {
+                                            mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("imageString").setValue(uri.toString());
+                                        }
 
                                     }
                                 });
