@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -27,6 +28,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -82,6 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int markerHeight = 100;
     private int markerWidth = 100;
     private String[] imageUrls;
+    CustomMarker currentOpenedEvent;
 
 // =====================================================================
 // NAME:
@@ -218,7 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         imageUrls = new String[]{
-                "https://s3.voyapon.com/wp-content/uploads/2017/04/IMG_20170424_135925.jpg",
+                "https://firebasestorage.googleapis.com/v0/b/neighbourhood-diary.appspot.com/o/photos%2FPostbox%2Fimage%3A223?alt=media&token=a356e969-61aa-4d76-82ce-2c75c9b3c6f7",
                 "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/ATM_750x1300.jpg/220px-ATM_750x1300.jpg",
                 "https://cdn.pixabay.com/photo/2017/12/24/09/09/road-3036620_960_720.jpg",
                 "https://cdn.pixabay.com/photo/2017/11/07/00/07/fantasy-2925250_960_720.jpg",
@@ -268,6 +271,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 targetMarker = a;
             }
         }
+
+        currentOpenedEvent = targetMarker;
 
         if(targetMarker.isExpirable()){
 
@@ -456,13 +461,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         progressDialog.setMessage("Uploading photo");
                         progressDialog.show();
 
-                        Uri uri = data.getData();
-                        StorageReference cref = mStorage.child("photos").child(uri.getLastPathSegment());
+                        final Uri uri = data.getData();
+                        final StorageReference cref = mStorage.child("photos").child(currentOpenedEvent.getEventName()).child(uri.getLastPathSegment());
 
                         cref.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 Toast.makeText(MapsActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+
+                                cref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadurl = uri;
+
+                                        mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("imageString").setValue(uri.toString());
+
+                                    }
+                                });
+
                                 progressDialog.dismiss();
                             }
                         });

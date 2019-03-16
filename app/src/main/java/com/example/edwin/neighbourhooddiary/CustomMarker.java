@@ -15,6 +15,16 @@ public class CustomMarker {
     public ArrayList<String> groupsWelcome;
     public String addedBy;
 
+    public String getImageString() {
+        return imageString;
+    }
+
+    public void setImageString(String imageString) {
+        this.imageString = imageString;
+    }
+
+    public String imageString;
+
     public CustomMarker(double lat, double lng, boolean isExpirable, String eventName, String eventType, long startTime, long endTime, String descrip, String addedBy) {
         this.lat = lat;
         this.lng = lng;
