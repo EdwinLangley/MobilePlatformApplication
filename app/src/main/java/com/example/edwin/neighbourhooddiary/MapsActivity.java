@@ -316,6 +316,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        if(currentOpenedEvent.getRating() < 1.5){
+            star1.setImageDrawable(don);
+            star2.setImageDrawable(doff);
+            star3.setImageDrawable(doff);
+            star4.setImageDrawable(doff);
+            star5.setImageDrawable(doff);
+        } else if((currentOpenedEvent.getRating() > 1.5) && (currentOpenedEvent.getRating() < 2.5)){
+            star1.setImageDrawable(don);
+            star2.setImageDrawable(don);
+            star3.setImageDrawable(doff);
+            star4.setImageDrawable(doff);
+            star5.setImageDrawable(doff);
+        } else if((currentOpenedEvent.getRating() > 2.5) && (currentOpenedEvent.getRating() < 3.5)){
+            star1.setImageDrawable(don);
+            star2.setImageDrawable(don);
+            star3.setImageDrawable(don);
+            star4.setImageDrawable(doff);
+            star5.setImageDrawable(doff);
+        } else if((currentOpenedEvent.getRating() > 3.5) && (currentOpenedEvent.getRating() < 4.5)){
+            star1.setImageDrawable(don);
+            star2.setImageDrawable(don);
+            star3.setImageDrawable(don);
+            star4.setImageDrawable(don);
+            star5.setImageDrawable(doff);
+        } else if((currentOpenedEvent.getRating() > 4.5) && (currentOpenedEvent.getRating() <= 5)){
+            star1.setImageDrawable(don);
+            star2.setImageDrawable(don);
+            star3.setImageDrawable(don);
+            star4.setImageDrawable(don);
+            star5.setImageDrawable(don);
+        }
+
         float newRating = 0;
 
         star1.setOnClickListener(new View.OnClickListener() {
@@ -398,7 +430,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
                 float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 5 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
                 mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
-                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(20);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(newnumberofRatings);
 
 
             }
