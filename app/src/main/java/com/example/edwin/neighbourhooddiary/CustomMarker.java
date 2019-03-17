@@ -14,6 +14,25 @@ public class CustomMarker {
     public String descrip;
     public ArrayList<String> groupsWelcome;
     public String addedBy;
+    public float rating;
+    public int numberOfRatings;
+    public String imageString;
+
+    public int getNumberOfRatings() {
+        return numberOfRatings;
+    }
+
+    public void setNumberOfRatings(int numberOfRatings) {
+        this.numberOfRatings = numberOfRatings;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
 
     public String getImageString() {
         return imageString;
@@ -22,8 +41,6 @@ public class CustomMarker {
     public void setImageString(String imageString) {
         this.imageString = imageString;
     }
-
-    public String imageString;
 
     public CustomMarker(double lat, double lng, boolean isExpirable, String eventName, String eventType, long startTime, long endTime, String descrip, String addedBy) {
         this.lat = lat;

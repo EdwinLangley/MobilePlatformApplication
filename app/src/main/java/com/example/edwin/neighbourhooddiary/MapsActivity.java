@@ -213,6 +213,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             customMarker.setLng(ds.getValue(CustomMarker.class).getLng());
             customMarker.setStartTime(ds.getValue(CustomMarker.class).getStartTime());
             customMarker.setImageString(ds.getValue(CustomMarker.class).getImageString());
+            customMarker.setRating(ds.getValue(CustomMarker.class).getRating());
+            customMarker.setNumberOfRatings(ds.getValue(CustomMarker.class).getNumberOfRatings());
 
             activeCustomMarkers.add(customMarker);
 
@@ -247,8 +249,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             imageUrls = new String[0];
         }
-
-
 
 
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
@@ -316,6 +316,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        float newRating = 0;
+
         star1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -324,6 +326,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 star3.setImageDrawable(doff);
                 star4.setImageDrawable(doff);
                 star5.setImageDrawable(doff);
+
+                int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
+                float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 1 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(newnumberofRatings);
             }
         });
 
@@ -336,6 +343,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 star3.setImageDrawable(doff);
                 star4.setImageDrawable(doff);
                 star5.setImageDrawable(doff);
+
+                int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
+                float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 2 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(newnumberofRatings);
             }
         });
 
@@ -348,6 +360,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 star3.setImageDrawable(don);
                 star4.setImageDrawable(doff);
                 star5.setImageDrawable(doff);
+
+                int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
+                float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 3 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(newnumberofRatings);
             }
         });
 
@@ -360,6 +377,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 star3.setImageDrawable(don);
                 star4.setImageDrawable(don);
                 star5.setImageDrawable(doff);
+
+                int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
+                float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 4 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(newnumberofRatings);
             }
         });
 
@@ -372,6 +394,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 star3.setImageDrawable(don);
                 star4.setImageDrawable(don);
                 star5.setImageDrawable(don);
+
+                int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
+                float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 5 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
+                mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(20);
+
+
             }
         });
 
