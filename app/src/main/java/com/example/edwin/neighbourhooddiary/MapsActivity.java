@@ -154,12 +154,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread t = new Thread() {
             public void run() {
                 while (true) {
+                    writeGPSLocations();
                     try {
                         Thread.sleep(60000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    writeGPSLocations();
+
                 }
             }
         };
@@ -199,14 +200,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         gpsLocation = gpsLocation.replace(".",",");
 
         Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy hh:mm a");
         String formattedDate = df.format(c);
 
-        Date d=new Date();
-        SimpleDateFormat sdf=new SimpleDateFormat("hh:mm a");
-        String currentDateTimeString = sdf.format(d);
-
-        uReference.child(acct.getDisplayName()).child("GPSLocations").child(formattedDate).child(currentDateTimeString).setValue(gpsLocation);
+        uReference.child(acct.getDisplayName()).child("gpsLocations").child(formattedDate).setValue(gpsLocation);
     }
 
 

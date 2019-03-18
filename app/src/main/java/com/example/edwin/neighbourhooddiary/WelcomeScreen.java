@@ -111,13 +111,10 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void loadInUsers(DataSnapshot dataSnapshot) {
+    private void loadInUsers(@NonNull DataSnapshot dataSnapshot) {
         allUsers.clear();
         for(DataSnapshot ds : dataSnapshot.getChildren() ){
-            User user = new User();
-            user.setDisplayName(ds.getValue(User.class).getDisplayName());
-            user.setTime(ds.getValue(User.class).getTime());
-            user.setEmail(ds.getValue(User.class).getEmail());
+            User user = ds.getValue(User.class);
 
             allUsers.add(user);
 
@@ -128,6 +125,12 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         Intent mapIntent = new Intent(this, MapsActivity.class);
         mapIntent.putExtra("acct",acct);
         startActivity(mapIntent);
+    }
+
+    public void openTrackingPage(View view){
+        Intent intent = new Intent(this, displayTracking.class);
+        intent.putExtra("acct",acct);
+        startActivity(intent);
     }
 
     public void displayAboutAppDialog(View view){
@@ -303,7 +306,20 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             signInButton.setVisibility(View.GONE);
             signedInAsButton.setVisibility(View.VISIBLE);
             signedInAsButton.setText("Signed In As " + acct.getDisplayName());
-            fbDatabaseHelper.writeNewUser(acct.getDisplayName(),acct.getGivenName(),acct.getEmail());
+            boolean matchingAccount = false;
+
+            for(User s : allUsers){
+                String sdisplayname = s.getDisplayName();
+                String accdis = acct.getDisplayName();
+                if(sdisplayname.matches(accdis)){
+                    matchingAccount= true;
+                }
+            }
+
+            if(matchingAccount == false){
+                fbDatabaseHelper.writeNewUser(acct.getDisplayName(),acct.getDisplayName(),acct.getEmail());
+            }
+
         } else {
             Toast.makeText(this, "This didn't work", Toast.LENGTH_SHORT).show();
         }

@@ -14,18 +14,15 @@ public class User {
     public String displayName;
     public String email;
     public long time;
+    public Map<String, String> gpsLocations;
 
-    public ArrayList<String> getGpsLocations() {
+    public Map<String, String> getGpsLocations() {
         return gpsLocations;
     }
 
-    public void setGpsLocations(ArrayList<String> gpsLocations) {
+    public void setGpsLocations(Map<String, String> gpsLocations) {
         this.gpsLocations = gpsLocations;
     }
-
-    public ArrayList<String> gpsLocations;
-
-
 
 
     public long getTime() {
