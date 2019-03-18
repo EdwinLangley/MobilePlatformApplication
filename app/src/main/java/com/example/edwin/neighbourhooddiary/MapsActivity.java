@@ -58,10 +58,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -75,10 +77,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FBDatabaseHelper fbDatabaseHelper = new FBDatabaseHelper();
     GoogleSignInAccount acct;
     DatabaseReference mMarkerReference;
+    DatabaseReference uReference;
     ArrayList<CustomMarker> activeCustomMarkers = new ArrayList<>();
     ArrayList<Marker> drawnMarkers = new ArrayList<>();
 
     private NfcAdapter mNfcAdapter;
+
+    public User user;
 
     private StorageReference mStorage;
     ProgressDialog progressDialog;
@@ -103,9 +108,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        user = new User();
+
         acct = getIntent().getParcelableExtra("acct");
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         mMarkerReference = FirebaseDatabase.getInstance().getReference().child("markers");
+        uReference = FirebaseDatabase.getInstance().getReference().child("users");
 
         mStorage = FirebaseStorage.getInstance().getReference();
 
@@ -130,19 +140,75 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMarkerReference.addValueEventListener(markerListener);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        if(mNfcAdapter != null) {
+        if (mNfcAdapter != null) {
             //This will refer back to createNdefMessage for what it will send
             mNfcAdapter.setNdefPushMessageCallback(this, this);
 
             //This will be called if the message is sent successfully
             mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
-        }
-        else {
+        } else {
             Toast.makeText(this, "NFC unavailable",
                     Toast.LENGTH_SHORT).show();
         }
 
+        Thread t = new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(60000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    writeGPSLocations();
+                }
+            }
+        };
+        t.start();
     }
+
+
+// =====================================================================
+// NAME:
+// PURPOSE:
+// =====================================================================
+
+
+    public void writeGPSLocations() {
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+
+
+        String gpsLocation = "";
+
+        gpsLocation = Double.toString(longitude)+"lng"+Double.toString(latitude)+"lat";
+
+        gpsLocation = gpsLocation.replace(".",",");
+
+        Date c = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+        String formattedDate = df.format(c);
+
+        Date d=new Date();
+        SimpleDateFormat sdf=new SimpleDateFormat("hh:mm a");
+        String currentDateTimeString = sdf.format(d);
+
+        uReference.child(acct.getDisplayName()).child("GPSLocations").child(formattedDate).child(currentDateTimeString).setValue(gpsLocation);
+    }
+
 
 // =====================================================================
 // NAME:

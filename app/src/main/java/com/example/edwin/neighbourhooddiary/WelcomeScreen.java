@@ -210,9 +210,17 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         emailText.setText("Email: " + user.getEmail());
         lastLoggedInText.setText("Last Logged In : " + df.format(loggedInTime));
 
+        Button dissmissButton = innerView.findViewById(R.id.dismissButton);
 
         mBuilder.setView(innerView);
         final AlertDialog innerDialog = mBuilder.create();
+
+        dissmissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                innerDialog.dismiss();
+            }
+        });
         innerDialog.show();
     }
 

@@ -3,6 +3,7 @@ package com.example.edwin.neighbourhooddiary;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,19 @@ public class User {
     public String displayName;
     public String email;
     public long time;
+
+    public ArrayList<String> getGpsLocations() {
+        return gpsLocations;
+    }
+
+    public void setGpsLocations(ArrayList<String> gpsLocations) {
+        this.gpsLocations = gpsLocations;
+    }
+
+    public ArrayList<String> gpsLocations;
+
+
+
 
     public long getTime() {
         return time;
