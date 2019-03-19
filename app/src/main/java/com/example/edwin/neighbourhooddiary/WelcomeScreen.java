@@ -185,6 +185,108 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
         mBuilder.setView(mView);
         final AlertDialog dialog = mBuilder.create();
+
+        Button dButton = (Button) mView.findViewById(R.id.dbutton);
+
+        dButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    public void openAllGroups(View view){
+
+
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_all_groups, null);
+
+        final ListView allUsersListView = (ListView) mView.findViewById(R.id.usersListView);
+
+        List<String> displayNames = new ArrayList<String>();
+
+        for(User u : allUsers){
+            displayNames.add(u.getDisplayName());
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                displayNames );
+
+        allUsersListView.setAdapter(arrayAdapter);
+
+        allUsersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String currentName = allUsersListView.getItemAtPosition(position).toString();
+                User userToView;
+                userToView = getSingleUser(currentName);
+                openSingleUser(userToView);
+            }
+        });
+
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+
+        Button dButton = (Button) mView.findViewById(R.id.dbutton);
+
+        dButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    public void openAllNews(View view){
+
+
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_all_news, null);
+
+        final ListView allUsersListView = (ListView) mView.findViewById(R.id.usersListView);
+
+        List<String> displayNames = new ArrayList<String>();
+
+        for(User u : allUsers){
+            displayNames.add(u.getDisplayName());
+        }
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                displayNames );
+
+        allUsersListView.setAdapter(arrayAdapter);
+
+        allUsersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String currentName = allUsersListView.getItemAtPosition(position).toString();
+                User userToView;
+                userToView = getSingleUser(currentName);
+                openSingleUser(userToView);
+            }
+        });
+
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+
+        Button dButton = (Button) mView.findViewById(R.id.dbutton);
+
+        dButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
         dialog.show();
     }
 

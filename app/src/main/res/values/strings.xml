@@ -6,7 +6,7 @@
     <string name="splashText">WELCOME</string>
     <string name="welcomeLogo">The Logo for the welcome screen</string>
     <string name="near_me_txt">Near Me</string>
-    <string name="search_area_txt">Search Area</string>
+    <string name="search_area_txt">Route</string>
     <string name="news_txt">News</string>
     <string name="sign_out">sign out</string>
     <string name="groups">Groups</string>
