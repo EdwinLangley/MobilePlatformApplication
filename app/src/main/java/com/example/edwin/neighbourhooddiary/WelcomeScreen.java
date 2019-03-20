@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +52,11 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
     GoogleSignInAccount acct;
     FBDatabaseHelper fbDatabaseHelper;
     DatabaseReference mUserReference;
+    DatabaseReference mGroupReference;
+    DatabaseReference mNewsReference;
     ArrayList<User> allUsers = new ArrayList<>();
+    ArrayList<Group> allGroups = new ArrayList<>();
+    ArrayList<News> allNews = new ArrayList<>();
 
     private NfcAdapter mNfcAdapter;
 
@@ -77,6 +82,8 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         signedInAsButton.setOnClickListener(this);
 
         mUserReference = FirebaseDatabase.getInstance().getReference().child("users");
+        mGroupReference = FirebaseDatabase.getInstance().getReference().child("groups");
+        mNewsReference = FirebaseDatabase.getInstance().getReference().child("news");
 
 
         ValueEventListener markerListener = new ValueEventListener() {
@@ -94,6 +101,38 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             }
         };
         mUserReference.addValueEventListener(markerListener);
+
+        ValueEventListener groupListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                loadInGroups(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+                // ...
+            }
+        };
+        mGroupReference.addValueEventListener(groupListener);
+
+        ValueEventListener newsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get Post object and use the values to update the UI
+                loadInNews(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+
+                // ...
+            }
+        };
+        mNewsReference.addValueEventListener(newsListener);
 
         //Check if NFC is available on device
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -117,6 +156,26 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             User user = ds.getValue(User.class);
 
             allUsers.add(user);
+
+        }
+    }
+
+    private void loadInGroups(@NonNull DataSnapshot dataSnapshot) {
+        allGroups = new ArrayList<Group>();
+        for(DataSnapshot ds : dataSnapshot.getChildren() ){
+            Group group = ds.getValue(Group.class);
+
+            allGroups.add(group);
+
+        }
+    }
+
+    private void loadInNews(@NonNull DataSnapshot dataSnapshot) {
+        allNews = new ArrayList<News>();
+        for(DataSnapshot ds : dataSnapshot.getChildren() ){
+            News news = ds.getValue(News.class);
+
+            allNews.add(news);
 
         }
     }
@@ -158,7 +217,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_all_users, null);
 
-        final ListView allUsersListView = (ListView) mView.findViewById(R.id.usersListView);
+        final ListView allUsersListView = (ListView) mView.findViewById(R.id.NewsListView);
 
         List<String> displayNames = new ArrayList<String>();
 
@@ -204,12 +263,14 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_all_groups, null);
 
-        final ListView allUsersListView = (ListView) mView.findViewById(R.id.usersListView);
+        final ListView allGroupsListView = (ListView) mView.findViewById(R.id.NewsListView);
+
+        final Button newGroupButton = (Button) mView.findViewById(R.id.SwapToAddButton);
 
         List<String> displayNames = new ArrayList<String>();
 
-        for(User u : allUsers){
-            displayNames.add(u.getDisplayName());
+        for(Group g : allGroups){
+            displayNames.add(g.getGroupName());
         }
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
@@ -217,15 +278,20 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
                 android.R.layout.simple_list_item_1,
                 displayNames );
 
-        allUsersListView.setAdapter(arrayAdapter);
+        allGroupsListView.setAdapter(arrayAdapter);
 
-        allUsersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        allGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String currentName = allUsersListView.getItemAtPosition(position).toString();
-                User userToView;
-                userToView = getSingleUser(currentName);
-                openSingleUser(userToView);
+                String currentName = allGroupsListView.getItemAtPosition(position).toString();
+                Toast.makeText(WelcomeScreen.this, currentName, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        newGroupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAddNewGroup();
             }
         });
 
@@ -244,18 +310,86 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         dialog.show();
     }
 
+
+    public void openAddNewGroup(){
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View innerView = getLayoutInflater().inflate(R.layout.dialog_add_new_group, null);
+
+        final EditText groupNameEditText = (EditText) innerView.findViewById(R.id.newsNameEditText);
+        final EditText groupDescEditText = (EditText) innerView.findViewById(R.id.newsDesEditText);
+
+        Button saveGroupButton = innerView.findViewById(R.id.submitGroupButton);
+
+        mBuilder.setView(innerView);
+        final AlertDialog innerDialog = mBuilder.create();
+
+        saveGroupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(WelcomeScreen.this, groupNameEditText.getText(), Toast.LENGTH_SHORT).show();
+
+                String groupName = groupNameEditText.getText().toString();
+                String groupDesc = groupDescEditText.getText().toString();
+
+                Group newGroup = new Group();
+
+                newGroup.setGroupName(groupName);
+                newGroup.setDescription(groupDesc);
+                newGroup.setMembers(acct.getDisplayName());
+
+
+                mGroupReference.child(groupName).setValue(newGroup);
+                innerDialog.dismiss();
+            }
+        });
+        innerDialog.show();
+    }
+
+    public void openAddNews(){
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View innerView = getLayoutInflater().inflate(R.layout.dialog_add_news, null);
+
+        final EditText newsNameEditText = (EditText) innerView.findViewById(R.id.newsNameEditText);
+        final EditText newsDescEditText = (EditText) innerView.findViewById(R.id.newsDesEditText);
+
+        Button saveGroupButton = innerView.findViewById(R.id.submitNewsButton);
+
+        mBuilder.setView(innerView);
+        final AlertDialog innerDialog = mBuilder.create();
+
+        saveGroupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast.makeText(WelcomeScreen.this, groupNameEditText.getText(), Toast.LENGTH_SHORT).show();
+
+                String newsName = newsNameEditText.getText().toString();
+                String newsDesc = newsDescEditText.getText().toString();
+
+                News newNews = new News();
+
+                newNews.setTopic(newsName);
+                newNews.setNews(newsDesc);
+
+                mNewsReference.child(newsName).setValue(newNews);
+
+                innerDialog.dismiss();
+            }
+        });
+        innerDialog.show();
+    }
+
     public void openAllNews(View view){
 
 
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_all_news, null);
 
-        final ListView allUsersListView = (ListView) mView.findViewById(R.id.usersListView);
+        final ListView allUsersListView = (ListView) mView.findViewById(R.id.NewsListView);
 
         List<String> displayNames = new ArrayList<String>();
 
-        for(User u : allUsers){
-            displayNames.add(u.getDisplayName());
+        for(News n : allNews){
+            displayNames.add(n.getTopic());
         }
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
@@ -269,9 +403,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String currentName = allUsersListView.getItemAtPosition(position).toString();
-                User userToView;
-                userToView = getSingleUser(currentName);
-                openSingleUser(userToView);
+                Toast.makeText(WelcomeScreen.this, currentName, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -279,6 +411,22 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         final AlertDialog dialog = mBuilder.create();
 
         Button dButton = (Button) mView.findViewById(R.id.dbutton);
+
+        Button addButton = (Button) mView.findViewById(R.id.SwapToAddButton);
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAddNews();
+            }
+        });
+
+        dButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
 
         dButton.setOnClickListener(new View.OnClickListener() {
             @Override

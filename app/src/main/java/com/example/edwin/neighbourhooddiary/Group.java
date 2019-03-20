@@ -3,8 +3,8 @@ package com.example.edwin.neighbourhooddiary;
 public class Group {
 
     public String groupName;
-    public String Description;
-    public String Members;
+    public String description;
+    public String members;
 
     public String getGroupName() {
         return groupName;
@@ -15,19 +15,19 @@ public class Group {
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
     public void setDescription(String description) {
-        Description = description;
+        this.description = description;
     }
 
     public String getMembers() {
-        return Members;
+        return members;
     }
 
     public void setMembers(String members) {
-        Members = members;
+        this.members = members;
     }
 
 }
