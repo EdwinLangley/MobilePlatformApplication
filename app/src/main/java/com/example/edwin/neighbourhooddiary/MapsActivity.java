@@ -583,11 +583,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     long startTime = data.getLongExtra("startTime",0L);
                     long endTime = data.getLongExtra("endTime",0L);
                     String eventType = data.getStringExtra("eventType");
-                    mMap.addMarker(markerOptions);
+                    //mMap.addMarker(markerOptions);
                     Double lat = markerOptions.getPosition().latitude;
                     Double lng = markerOptions.getPosition().longitude;
 
                     fbDatabaseHelper.writeNewMarker(lat,lng,isExpirable,markerOptions.getTitle(),eventType,startTime,endTime,description,acct.getDisplayName());
+                    break;
                 }}
                 case (PICK_IMAGE) : {
                     if (resultCode == Activity.RESULT_OK) {
