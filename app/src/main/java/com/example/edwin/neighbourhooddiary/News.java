@@ -21,5 +21,15 @@ public class News {
     public String topic;
     public String news;
 
+    public String getPostedBy() {
+        return postedBy;
+    }
+
+    public void setPostedBy(String postedBy) {
+        this.postedBy = postedBy;
+    }
+
+    public String postedBy;
+
 
 }

@@ -284,7 +284,16 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String currentName = allGroupsListView.getItemAtPosition(position).toString();
-                Toast.makeText(WelcomeScreen.this, currentName, Toast.LENGTH_SHORT).show();
+
+                Group passgroup = new Group();
+
+                for(Group g : allGroups){
+                    if(g.getGroupName().equals(currentName)){
+                        passgroup = g;
+                    }
+                }
+
+                openSingleGroup(passgroup);
             }
         });
 
@@ -369,6 +378,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
                 newNews.setTopic(newsName);
                 newNews.setNews(newsDesc);
+                newNews.setPostedBy(acct.getDisplayName());
 
                 mNewsReference.child(newsName).setValue(newNews);
 
@@ -389,7 +399,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         List<String> displayNames = new ArrayList<String>();
 
         for(News n : allNews){
-            displayNames.add(n.getTopic());
+            displayNames.add(n.getTopic() + " - by " + n.getPostedBy());
         }
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
@@ -403,7 +413,16 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String currentName = allUsersListView.getItemAtPosition(position).toString();
-                Toast.makeText(WelcomeScreen.this, currentName, Toast.LENGTH_SHORT).show();
+
+                News newsitem = new News();
+
+                for(News n : allNews){
+                    if((n.getTopic() + " - by " + n.getPostedBy()).equals(currentName)){
+                        newsitem = n;
+                    }
+                }
+
+                openSingleNews(newsitem);
             }
         });
 
@@ -436,6 +455,54 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         });
 
         dialog.show();
+    }
+
+    public void openSingleNews(News news){
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View innerView = getLayoutInflater().inflate(R.layout.dialog_single_news, null);
+
+        final TextView groupNameEditText = (TextView) innerView.findViewById(R.id.groupTitle);
+        final TextView groupDescEditText = (TextView) innerView.findViewById(R.id.groupDesc);
+
+        groupNameEditText.setText(news.getTopic());
+        groupDescEditText.setText(news.getNews());
+
+        Button dissButton = innerView.findViewById(R.id.dbutton);
+
+        mBuilder.setView(innerView);
+        final AlertDialog innerDialog = mBuilder.create();
+
+        dissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                innerDialog.dismiss();
+            }
+        });
+        innerDialog.show();
+    }
+
+    public void openSingleGroup(Group group){
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+        View innerView = getLayoutInflater().inflate(R.layout.dialog_single_group, null);
+
+        final TextView groupNameEditText = (TextView) innerView.findViewById(R.id.groupTitle);
+        final TextView groupDescEditText = (TextView) innerView.findViewById(R.id.groupDesc);
+
+        groupNameEditText.setText(group.getGroupName());
+        groupDescEditText.setText(group.getDescription());
+
+        Button dissButton = innerView.findViewById(R.id.dbutton);
+
+        mBuilder.setView(innerView);
+        final AlertDialog innerDialog = mBuilder.create();
+
+        dissButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                innerDialog.dismiss();
+            }
+        });
+        innerDialog.show();
     }
 
     public User getSingleUser(String displayName){
