@@ -1,6 +1,7 @@
 package com.example.edwin.neighbourhooddiary;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -39,6 +40,7 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -267,13 +269,13 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
         final Button newGroupButton = (Button) mView.findViewById(R.id.SwapToAddButton);
 
-        List<String> displayNames = new ArrayList<String>();
+        final List<String> displayNames = new ArrayList<String>();
 
         for(Group g : allGroups){
             displayNames.add(g.getGroupName());
         }
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
                 displayNames );
@@ -300,7 +302,54 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         newGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openAddNewGroup();
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
+                View innerView = getLayoutInflater().inflate(R.layout.dialog_add_new_group, null);
+
+                final EditText groupNameEditText = (EditText) innerView.findViewById(R.id.newsNameEditText);
+                final EditText groupDescEditText = (EditText) innerView.findViewById(R.id.newsDesEditText);
+
+                Button saveGroupButton = innerView.findViewById(R.id.submitGroupButton);
+
+                mBuilder.setView(innerView);
+                final AlertDialog innerDialog = mBuilder.create();
+
+                saveGroupButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Toast.makeText(WelcomeScreen.this, groupNameEditText.getText(), Toast.LENGTH_SHORT).show();
+
+                        String groupName = groupNameEditText.getText().toString();
+                        String groupDesc = groupDescEditText.getText().toString();
+
+                        Group newGroup = new Group();
+
+                        newGroup.setGroupName(groupName);
+                        newGroup.setDescription(groupDesc);
+                        newGroup.setMembers(acct.getDisplayName());
+
+                        mGroupReference.child(groupName).setValue(newGroup);
+
+
+                        ArrayList<String> displaynames2 = new ArrayList<>();
+
+                        for(Group g : allGroups){
+                            displaynames2.add(g.getGroupName());
+                        }
+
+                        displaynames2.add(newGroup.getGroupName());
+
+                        ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(
+                                WelcomeScreen.this,
+                                android.R.layout.simple_list_item_1,
+                                displaynames2 );
+
+                        allGroupsListView.setAdapter(arrayAdapter1);
+
+                        innerDialog.dismiss();
+
+                    }
+                });
+                innerDialog.show();
             }
         });
 
@@ -481,12 +530,87 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         innerDialog.show();
     }
 
-    public void openSingleGroup(Group group){
+    public String addNameToList(String listnames, String name){
+
+        String[] splitlist = listnames.split("§");
+
+        List<String> wordList1 = Arrays.asList(splitlist);
+
+        ArrayList<String> wordList = new ArrayList(wordList1);
+
+        wordList.add(name);
+
+        String returnString = "";
+
+        for(String s : wordList){
+            returnString+= s + "§";
+        }
+
+        return returnString;
+
+    }
+
+    public String removeNameFromList(String listnames, String name){
+        String[] splitlist = listnames.split("§");
+
+        List<String> wordList1 = Arrays.asList(splitlist);
+
+        ArrayList<String> wordList = new ArrayList(wordList1);
+
+        int elementToRemove = 0;
+
+        for(int i = 0; i < wordList.size(); i++){
+            if(wordList.get(i).equals(name)){
+                elementToRemove = i;
+            }
+        }
+
+        wordList.remove(elementToRemove);
+
+        String returnString = "";
+
+        for(String s : wordList){
+            returnString+= s + "§";
+        }
+
+        return returnString;
+
+    }
+
+    public void openSingleGroup(final Group group){
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
         View innerView = getLayoutInflater().inflate(R.layout.dialog_single_group, null);
 
         final TextView groupNameEditText = (TextView) innerView.findViewById(R.id.groupTitle);
         final TextView groupDescEditText = (TextView) innerView.findViewById(R.id.groupDesc);
+
+        final Button joinLeaveButton = (Button) innerView.findViewById(R.id.joinOrLeave);
+
+        if(group.getMembers().contains(acct.getDisplayName())){
+            joinLeaveButton.setText("Leave Group");
+            joinLeaveButton.setBackgroundColor(Color.RED);
+        } else {
+            joinLeaveButton.setText("Join Group");
+            joinLeaveButton.setBackgroundColor(Color.GREEN);
+
+        }
+
+        joinLeaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(joinLeaveButton.getText().equals("Leave Group")){
+                    String toWrite = removeNameFromList(group.getMembers(),acct.getDisplayName());
+                    mGroupReference.child(group.getGroupName()).child("members").setValue(toWrite);
+                    joinLeaveButton.setText("Join Group");
+                    joinLeaveButton.setBackgroundColor(Color.GREEN);
+                } else {
+                    String toWrite = addNameToList(group.getMembers(),acct.getDisplayName());
+                    mGroupReference.child(group.getGroupName()).child("members").setValue(toWrite);
+                    joinLeaveButton.setText("Leave Group");
+                    joinLeaveButton.setBackgroundColor(Color.RED);
+                }
+            }
+        });
 
         groupNameEditText.setText(group.getGroupName());
         groupDescEditText.setText(group.getDescription());
