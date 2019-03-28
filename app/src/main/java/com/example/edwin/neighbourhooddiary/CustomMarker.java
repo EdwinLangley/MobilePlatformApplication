@@ -137,7 +137,35 @@ public class CustomMarker {
 
 
 
+    public LatLngPair splitIntoLongAndLat(ArrayList<String> latlngString) {
+        ArrayList<Double> longs = new ArrayList<>();
+        ArrayList<Double> lats = new ArrayList<>();
 
+        LatLngPair latLngPair = new LatLngPair();
+
+        for (String s : latlngString) {
+
+            if(((s.contains("lat"))&&(s.contains("lng")))){
+                String snew = s.replace(",", ".");
+                snew = snew.replace("lat", "");
+
+                String[] splits = snew.split("lng");
+
+                String LongStr = splits[0];
+                String LatStr = splits[1];
+
+                longs.add(Double.parseDouble(LongStr));
+                lats.add(Double.parseDouble(LatStr));
+            } else {
+                return null;
+            }
+        }
+
+        latLngPair.setLat(lats);
+        latLngPair.setLng(longs);
+
+        return latLngPair;
+    }
 
 
 

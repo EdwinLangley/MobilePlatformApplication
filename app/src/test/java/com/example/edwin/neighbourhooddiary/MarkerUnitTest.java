@@ -114,5 +114,53 @@ public class MarkerUnitTest {
         assertEquals(marker.getLng(),lng,0.0001);
     }
 
+    @Test
+    public void acceptableLatLong()
+    {
+        LatLngPair expected = new LatLngPair();
+        ArrayList<String> input = new ArrayList<>();
+        ArrayList<Double> latexp = new ArrayList<>();
+        ArrayList<Double> lngexp = new ArrayList<>();
+        lngexp.add(-1.175987040079825);
+        lngexp.add(-1.176478);
+        lngexp.add(-1.176143);
+        latexp.add(52.943494976878966);
+        latexp.add(52.943860);
+        latexp.add(52.944115);
+        expected.setLat(latexp);
+        expected.setLng(lngexp);
+
+        input.add("-1,175987040079825lng52,943494976878966lat");
+        input.add("-1,176478lng52,943860lat");
+        input.add("-1,176143lng52,944115lat");
+
+        LatLngPair resultLatLong = marker.splitIntoLongAndLat(input);
+        assertEquals(resultLatLong.getLat(), expected.getLat());
+    }
+
+    @Test
+    public void unacceptableLatLong()
+    {
+        LatLngPair expected = new LatLngPair();
+        ArrayList<String> input = new ArrayList<>();
+        ArrayList<Double> latexp = new ArrayList<>();
+        ArrayList<Double> lngexp = new ArrayList<>();
+        lngexp.add(-1.175987040079825);
+        lngexp.add(-1.176478);
+        lngexp.add(-1.176143);
+        latexp.add(52.943494976878966);
+        latexp.add(52.943860);
+        latexp.add(52.944115);
+        expected.setLat(latexp);
+        expected.setLng(lngexp);
+
+        input.add("-1.175987040079825long52.943494976878966lat");
+        input.add("-1.176478long52.943860lat");
+        input.add("-1.176143long52.944115lat");
+
+        LatLngPair resultLatLong = marker.splitIntoLongAndLat(input);
+        assertEquals(1, null);
+    }
+
 
 }

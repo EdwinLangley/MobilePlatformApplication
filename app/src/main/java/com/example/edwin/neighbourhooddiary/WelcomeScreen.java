@@ -91,15 +91,12 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         ValueEventListener markerListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
                 loadInUsers(dataSnapshot);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
 
-                // ...
             }
         };
         mUserReference.addValueEventListener(markerListener);
@@ -107,15 +104,12 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         ValueEventListener groupListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
                 loadInGroups(dataSnapshot);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
 
-                // ...
             }
         };
         mGroupReference.addValueEventListener(groupListener);
@@ -123,26 +117,20 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         ValueEventListener newsListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
                 loadInNews(dataSnapshot);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
 
-                // ...
             }
         };
         mNewsReference.addValueEventListener(newsListener);
 
-        //Check if NFC is available on device
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(mNfcAdapter != null) {
-            //This will refer back to createNdefMessage for what it will send
             mNfcAdapter.setNdefPushMessageCallback(this, this);
 
-            //This will be called if the message is sent successfully
             mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
         }
         else {
@@ -418,7 +406,6 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         saveGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(WelcomeScreen.this, groupNameEditText.getText(), Toast.LENGTH_SHORT).show();
 
                 String newsName = newsNameEditText.getText().toString();
                 String newsDesc = newsDescEditText.getText().toString();
@@ -550,31 +537,29 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
 
     }
 
-    public String removeNameFromList(String listnames, String name){
-        String[] splitlist = listnames.split("§");
+    public String removeNameFromList(String listNames, String name){
+        if((listNames != null) || (name != null)){
+            String[] splitList = listNames.split("§");
+            List<String> wordListTemp = Arrays.asList(splitList);
+            ArrayList<String> wordList = new ArrayList(wordListTemp);
 
-        List<String> wordList1 = Arrays.asList(splitlist);
+            int elementToRemove = 0;
 
-        ArrayList<String> wordList = new ArrayList(wordList1);
-
-        int elementToRemove = 0;
-
-        for(int i = 0; i < wordList.size(); i++){
-            if(wordList.get(i).equals(name)){
-                elementToRemove = i;
+            for(int i = 0; i < wordList.size(); i++){
+                if(wordList.get(i).equals(name)){
+                    elementToRemove = i;
+                }
             }
+
+            wordList.remove(elementToRemove);
+            String returnString = "";
+
+            for(String s : wordList){
+                returnString+= s + "§";
+            }
+            return returnString;
         }
-
-        wordList.remove(elementToRemove);
-
-        String returnString = "";
-
-        for(String s : wordList){
-            returnString+= s + "§";
-        }
-
-        return returnString;
-
+        return null;
     }
 
     public void openSingleGroup(final Group group){
@@ -638,7 +623,7 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         return null;
     }
 
-    public void openSingleUser(User user){
+    public void openSingleUser(final User user){
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(WelcomeScreen.this);
         View innerView = getLayoutInflater().inflate(R.layout.dialog_user_information, null);
 
@@ -653,11 +638,35 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         displayNameText.setText("Name: " + user.getDisplayName());
         emailText.setText("Email: " + user.getEmail());
         lastLoggedInText.setText("Last Logged In : " + df.format(loggedInTime));
-
         Button dissmissButton = innerView.findViewById(R.id.dismissButton);
+
+        final Button addRemoveButton = innerView.findViewById(R.id.addRemoveButton);
+
+        if(user.getFriends() != null){
+            if(user.getFriends().contains(acct.getDisplayName())){
+                addRemoveButton.setText("Remove Friend");
+                addRemoveButton.setBackgroundColor(Color.RED);
+            } else {
+                addRemoveButton.setText("Add Friend");
+                addRemoveButton.setBackgroundColor(Color.GREEN);
+            }
+        } else {
+            addRemoveButton.setText("Add Friend");
+            addRemoveButton.setBackgroundColor(Color.GREEN);
+        }
+
 
         mBuilder.setView(innerView);
         final AlertDialog innerDialog = mBuilder.create();
+
+        addRemoveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mUserReference.child(user.getDisplayName()).child("friends").setValue(acct.getDisplayName());
+                addRemoveButton.setText("Remove Friend");
+                addRemoveButton.setBackgroundColor(Color.RED);
+            }
+        });
 
         dissmissButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -798,17 +807,11 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
 
-
-        //This will be called when another NFC capable device is detected.
-
-        //We'll write the createRecords() method in just a moment
         NdefRecord recordToAttach = createRecords();
-        //When creating an NdefMessage we need to provide an NdefRecord[]
         return new NdefMessage(recordToAttach);
     }
 
     public NdefRecord createRecords() {
-        //To Create Messages Manually if API is less than
         NdefRecord record;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
@@ -817,13 +820,12 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
                     getBytes(Charset.forName("UTF-8"));
 
             record = new NdefRecord(
-                    NdefRecord.TNF_WELL_KNOWN,      //Our 3-bit Type name format
-                    NdefRecord.RTD_TEXT,            //Description of our payload
-                    new byte[0],                    //The optional id for our Record
-                    payload);                       //Our payload for the Record
+                    NdefRecord.TNF_WELL_KNOWN,
+                    NdefRecord.RTD_TEXT,
+                    new byte[0],
+                    payload);
 
         }
-        //Api is high enough that we can use createMime, which is preferred.
         else {
             byte[] payload = "ATM".getBytes(Charset.forName("UTF-8"));
 
@@ -843,13 +845,13 @@ public class WelcomeScreen extends AppCompatActivity implements View.OnClickList
         recieveNFCIntent(intent);
     }
 
-    //Save our Array Lists of Messages for if the user navigates away
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    //Load our Array Lists of Messages for when the user navigates back
+
     @Override
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

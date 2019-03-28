@@ -103,7 +103,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -124,7 +123,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ValueEventListener markerListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // Get Post object and use the values to update the UI
                 loadInMarkers(dataSnapshot);
                 loadOntoMap();
 
@@ -132,19 +130,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
 
-                // ...
             }
         };
         mMarkerReference.addValueEventListener(markerListener);
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter != null) {
-            //This will refer back to createNdefMessage for what it will send
+
             mNfcAdapter.setNdefPushMessageCallback(this, this);
 
-            //This will be called if the message is sent successfully
             mNfcAdapter.setOnNdefPushCompleteCallback(this, this);
         } else {
             Toast.makeText(this, "NFC unavailable",
@@ -178,13 +173,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return;
         }
 
@@ -317,7 +306,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_event_content_screen, null);
 
-        //Button dismissButton = (Button) mView.findViewById(R.id.dismissButton);
 
         ViewPager viewPager = mView.findViewById(R.id.view_pager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(this, imageUrls);
@@ -439,10 +427,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 star4.setImageDrawable(doff);
                 star5.setImageDrawable(doff);
 
+
+
+
+
                 int newnumberofRatings = currentOpenedEvent.getNumberOfRatings() + 1;
                 float newRating = ((currentOpenedEvent.getRating() * currentOpenedEvent.getNumberOfRatings()) + 2 ) / (currentOpenedEvent.getNumberOfRatings() + 1);
                 mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("rating").setValue(newRating);
                 mMarkerReference.child(currentOpenedEvent.getEventName()+currentOpenedEvent.getAddedBy()).child("numberOfRatings").setValue(newnumberofRatings);
+
+
+
             }
         });
 
@@ -518,8 +513,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         this.mMap.setMyLocationEnabled(true);
 
-        //mMap.setInfoWindowAdapter(new InfoWindowCustom(this));
-
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -536,11 +529,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                    .zoom(17)                   // Sets the zoom
-                    .bearing(0)                // Sets the orientation of the camera to east
-                    .tilt(40)                   // Sets the tilt of the camera to 30 degrees
-                    .build();                   // Creates a CameraPosition from the builder
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                    .zoom(17)
+                    .bearing(0)
+                    .tilt(40)
+                    .build();
             mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
 
@@ -583,7 +576,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     long startTime = data.getLongExtra("startTime",0L);
                     long endTime = data.getLongExtra("endTime",0L);
                     String eventType = data.getStringExtra("eventType");
-                    //mMap.addMarker(markerOptions);
                     Double lat = markerOptions.getPosition().latitude;
                     Double lng = markerOptions.getPosition().longitude;
 
@@ -641,13 +633,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (requestCode == 101) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+
                     return;
                 }
                 mMap.setMyLocationEnabled(true);
@@ -667,7 +653,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for (NdefRecord r:attachedRecords) {
                     String feedback = new String(r.getPayload());
                     if(feedback.equals("ATM")){
-                        displayEventContentDialog("ATM");
+                        displayEventContentDialog("Summer Picnic Zone");
                     }
                     if(feedback.equals("Car Charge")){
                         displayEventContentDialog("Car Charge");

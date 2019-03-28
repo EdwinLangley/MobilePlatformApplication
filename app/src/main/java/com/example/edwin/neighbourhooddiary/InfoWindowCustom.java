@@ -22,8 +22,7 @@ public class InfoWindowCustom implements GoogleMap.InfoWindowAdapter {
     public View getInfoWindow(Marker marker) {
         inflater = (LayoutInflater)
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        // R.layout.echo_info_window is a layout in my
-        // res/layout folder. You can provide your own
+
         View v = inflater.inflate(R.layout.echo_info_window, null);
 
         final TextView title = (TextView) v.findViewById(R.id.titleTextView);

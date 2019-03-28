@@ -4,8 +4,10 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @IgnoreExtraProperties
@@ -14,6 +16,20 @@ public class User {
     public String displayName;
     public String email;
     public long time;
+
+    public String getFriends() {
+        return friends;
+    }
+
+    public void setFriends(String friends) {
+        this.friends = friends;
+    }
+
+    public String friends;
+
+
+
+
     public Map<String, String> gpsLocations;
 
     public Map<String, String> getGpsLocations() {
@@ -62,5 +78,34 @@ public class User {
         time = date.getTime();
 
     }
+
+    public String removeNameFromList(String listNames, String name){
+        if(((listNames != null) || (name != null)) && (!name.equals("§"))){
+            if(!listNames.contains("§")){
+                return listNames;
+            }
+            String[] splitList = listNames.split("§");
+            List<String> wordListTemp = Arrays.asList(splitList);
+            ArrayList<String> wordList = new ArrayList(wordListTemp);
+
+            int elementToRemove = 0;
+
+            for(int i = 0; i < wordList.size(); i++){
+                if(wordList.get(i).equals(name)){
+                    elementToRemove = i;
+                }
+            }
+
+            wordList.remove(elementToRemove);
+            String returnString = "";
+
+            for(String s : wordList){
+                returnString+= s + "§";
+            }
+            return returnString;
+        }
+        return null;
+    }
+
 }
 

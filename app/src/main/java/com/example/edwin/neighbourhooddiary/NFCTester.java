@@ -1,7 +1,7 @@
 package com.example.edwin.neighbourhooddiary;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.location.Location;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Parcelable;
@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 
 import com.google.firebase.database.DataSnapshot;
@@ -29,12 +28,7 @@ import java.util.List;
 
 public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPushCompleteCallback, NfcAdapter.CreateNdefMessageCallback {
 
-    private FBDatabaseHelper fbDatabaseHelper = new FBDatabaseHelper();
-    DatabaseReference mMarkerReference;
     ArrayList<CustomMarker> activeCustomMarkers = new ArrayList<>();
-    TextView currentEvent;
-    ArrayList<String> eventNames;
-
     DatabaseReference ref;
     FirebaseDatabase database;
     TextView currentmarker;
@@ -77,10 +71,8 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
 
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if(mNfcAdapter != null) {
-            //This will refer back to createNdefMessage for what it will send
             mNfcAdapter.setNdefPushMessageCallback(this, this);
 
-            //This will be called if the message is sent successfully
             mNfcAdapter.setOnNdefPushCompleteCallback( this, this);
         }
         else {
@@ -106,8 +98,6 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
             customMarker.setLat(ds.getValue(CustomMarker.class).getLat());
             customMarker.setLng(ds.getValue(CustomMarker.class).getLng());
             customMarker.setStartTime(ds.getValue(CustomMarker.class).getStartTime());
-
-            //Toast.makeText(this, customMarker.getEventName(), Toast.LENGTH_SHORT).show();
 
             activeCustomMarkers.add(customMarker);
 
@@ -146,17 +136,12 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
 
-
-        //This will be called when another NFC capable device is detected.
-
-        //We'll write the createRecords() method in just a moment
         NdefRecord recordToAttach = createRecords();
-        //When creating an NdefMessage we need to provide an NdefRecord[]
         return new NdefMessage(recordToAttach);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public NdefRecord createRecords() {
-        //To Create Messages Manually if API is less than
         NdefRecord record;
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
@@ -165,13 +150,12 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
                     getBytes(Charset.forName("UTF-8"));
 
             record = new NdefRecord(
-                    NdefRecord.TNF_WELL_KNOWN,      //Our 3-bit Type name format
-                    NdefRecord.RTD_TEXT,            //Description of our payload
-                    new byte[0],                    //The optional id for our Record
-                    payload);                       //Our payload for the Record
+                    NdefRecord.TNF_WELL_KNOWN,      
+                    NdefRecord.RTD_TEXT,
+                    new byte[0],
+                    payload);
 
         }
-        //Api is high enough that we can use createMime, which is preferred.
         else {
             byte[] payload = "ATM".getBytes(Charset.forName("UTF-8"));
 
@@ -215,13 +199,11 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
         }
     }
 
-    //Save our Array Lists of Messages for if the user navigates away
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    //Load our Array Lists of Messages for when the user navigates back
     @Override
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -247,9 +229,7 @@ public class NFCTester extends AppCompatActivity implements NfcAdapter.OnNdefPus
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
 
-                // ...
             }
         };
         ref.addValueEventListener(markerListener);
